@@ -1,1 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tarefas - Exemplo Completo | Por Sávio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .autor {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .autor a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .autor a:hover {
+            text-decoration: underline;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        #novaTarefa {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        #novaTarefa:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            padding: 15px 25px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #lista {
+            list-style: none;
+        }
+
+        .tarefa {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .tarefa:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .tarefa.concluida {
+            background: #d4edda;
+            opacity: 0.7;
+        }
+
+        .tarefa.concluida .texto {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+
+        .texto {
+            flex: 1;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .acoes {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-concluir {
+            background: #28a745;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .btn-concluir:hover {
+            background: #218838;
+        }
+
+        .btn-remover {
+            background: #dc3545;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .btn-remover:hover {
+            background: #c82333;
+        }
+
+        .stats {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+
+        .stat-item {
+            flex: 1;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #333;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .vazio {
+            text-align: center;
+            color: #6c757d;
+            padding: 40px;
+            font-style: italic;
+        }
+
+        .filtros {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .filtro {
+            padding: 10px 20px;
+            background: #e9ecef;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filtro.ativo {
+            background: #667eea;
+            color: white;
+        }
+
+        .filtro:hover {
+            background: #dee2e6;
+        }
+
+        .filtro.ativo:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Lista de Tarefas</h1>
+        <p class="autor">Desenvolvido por <a href="https://github.com/SavioCodes" target="_blank">Sávio</a></p>
+
+        <div class="input-container">
+            <input
+                type="text"
+                id="novaTarefa"
+                placeholder="Digite uma nova tarefa..."
+                autocomplete="off"
+            >
+            <button id="adicionar">Adicionar</button>
+        </div>
+
+        <div class="filtros">
+            <button class="filtro ativo" data-filtro="todas">Todas</button>
+            <button class="filtro" data-filtro="ativas">Ativas</button>
+            <button class="filtro" data-filtro="concluidas">Concluídas</button>
+        </div>
+
+        <ul id="lista"></ul>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-label">Total</div>
+                <div class="stat-value" id="total">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Ativas</div>
+                <div class="stat-value" id="ativas">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Concluídas</div>
+                <div class="stat-value" id="concluidas">0</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos DOM
+        const inputNovaTarefa = document.querySelector("#novaTarefa");
+        const btnAdicionar = document.querySelector("#adicionar");
+        const lista = document.querySelector("#lista");
+        const filtros = document.querySelectorAll(".filtro");
+
+        // Estado
+        let tarefas = JSON.parse(localStorage.getItem("tarefas")) || [];
+        let filtroAtivo = "todas";
+
+        // Inicializar
+        renderizar();
+
+        // Event Listeners
+        btnAdicionar.addEventListener("click", adicionarTarefa);
+
+        inputNovaTarefa.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                adicionarTarefa();
+            }
+        });
+
+        filtros.forEach(filtro => {
+            filtro.addEventListener("click", (e) => {
+                filtroAtivo = e.target.dataset.filtro;
+
+                filtros.forEach(f => f.classList.remove("ativo"));
+                e.target.classList.add("ativo");
+
+                renderizar();
+            });
+        });
+
+        // Funções
+        function adicionarTarefa() {
+            const texto = inputNovaTarefa.value.trim();
+
+            if (texto === "") {
+                alert("Digite uma tarefa!");
+                return;
+            }
+
+            const tarefa = {
+                id: Date.now(),
+                texto: texto,
+                concluida: false,
+                dataCriacao: new Date().toLocaleString("pt-BR")
+            };
+
+            tarefas.push(tarefa);
+            salvarNoLocalStorage();
+            renderizar();
+
+            inputNovaTarefa.value = "";
+            inputNovaTarefa.focus();
+        }
+
+        function toggleConcluir(id) {
+            const tarefa = tarefas.find(t => t.id === id);
+            if (tarefa) {
+                tarefa.concluida = !tarefa.concluida;
+                salvarNoLocalStorage();
+                renderizar();
+            }
+        }
+
+        function removerTarefa(id) {
+            if (confirm("Deseja realmente remover esta tarefa?")) {
+                tarefas = tarefas.filter(t => t.id !== id);
+                salvarNoLocalStorage();
+                renderizar();
+            }
+        }
+
+        function salvarNoLocalStorage() {
+            localStorage.setItem("tarefas", JSON.stringify(tarefas));
+        }
+
+        function renderizar() {
+            lista.innerHTML = "";
+
+            let tarefasFiltradas = tarefas;
+
+            if (filtroAtivo === "ativas") {
+                tarefasFiltradas = tarefas.filter(t => !t.concluida);
+            } else if (filtroAtivo === "concluidas") {
+                tarefasFiltradas = tarefas.filter(t => t.concluida);
+            }
+
+            if (tarefasFiltradas.length === 0) {
+                lista.innerHTML = '<div class="vazio">Nenhuma tarefa encontrada</div>';
+            } else {
+                tarefasFiltradas.forEach(tarefa => {
+                    const li = document.createElement("li");
+                    li.className = `tarefa ${tarefa.concluida ? "concluida" : ""}`;
+
+                    li.innerHTML = `
+                        <span class="texto">${tarefa.texto}</span>
+                        <div class="acoes">
+                            <button class="btn-concluir" onclick="toggleConcluir(${tarefa.id})">
+                                ${tarefa.concluida ? "↩️ Desfazer" : "✓ Concluir"}
+                            </button>
+                            <button class="btn-remover" onclick="removerTarefa(${tarefa.id})">
+                                🗑️ Remover
+                            </button>
+                        </div>
+                    `;
+
+                    lista.appendChild(li);
+                });
+            }
+
+            atualizarEstatisticas();
+        }
+
+        function atualizarEstatisticas() {
+            const total = tarefas.length;
+            const ativas = tarefas.filter(t => !t.concluida).length;
+            const concluidas = tarefas.filter(t => t.concluida).length;
+
+            document.querySelector("#total").textContent = total;
+            document.querySelector("#ativas").textContent = ativas;
+            document.querySelector("#concluidas").textContent = concluidas;
+        }
+    </script>
+</body>
+</html>
